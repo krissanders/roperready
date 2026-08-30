@@ -1,0 +1,620 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>RopeReady</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🪢</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+:root{
+  --bg:#F6F5F2; --surface:#FFFFFF; --surface2:#ECEAE4; --ink:#23201B; --muted:#6B655C;
+  --line:#DAD6CD; --accent:#C2490A; --accent-ink:#FFFFFF; --accent-soft:#F7E3D6;
+  --good:#33702E; --good-soft:#E4EFE0; --warn:#9A6A00; --warn-soft:#F3EAD2; --bad:#AB2B21; --bad-soft:#F4E0DD;
+  --shadow:0 1px 3px rgba(35,32,27,.08),0 4px 14px rgba(35,32,27,.06);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#171512; --surface:#201D19; --surface2:#2A2620; --ink:#EFEBE4; --muted:#A29A8D;
+    --line:#3A342C; --accent:#FF7A33; --accent-ink:#2A1608; --accent-soft:#3A2517;
+    --good:#7CC96E; --good-soft:#22301E; --warn:#EFB94C; --warn-soft:#332B18; --bad:#F07B6E; --bad-soft:#382018;
+    --shadow:0 1px 3px rgba(0,0,0,.45),0 4px 14px rgba(0,0,0,.3);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#171512; --surface:#201D19; --surface2:#2A2620; --ink:#EFEBE4; --muted:#A29A8D;
+  --line:#3A342C; --accent:#FF7A33; --accent-ink:#2A1608; --accent-soft:#3A2517;
+  --good:#7CC96E; --good-soft:#22301E; --warn:#EFB94C; --warn-soft:#332B18; --bad:#F07B6E; --bad-soft:#382018;
+  --shadow:0 1px 3px rgba(0,0,0,.45),0 4px 14px rgba(0,0,0,.3);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.55 "Archivo",system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased;padding-bottom:calc(74px + env(safe-area-inset-bottom))}
+.wrap{max-width:640px;margin:0 auto;padding:0 14px 24px}
+header.app{padding:18px 0 4px}
+h1.logo{font:800 28px/1 "Archivo",sans-serif;letter-spacing:.2px;margin:0}
+h1.logo em{font-style:normal;color:var(--accent)}
+.sub{color:var(--muted);font-size:13px;margin:4px 0 0}
+h2{font:700 21px/1.2 "Archivo",sans-serif;margin:20px 0 6px;letter-spacing:.1px}
+h3{font:600 16.5px/1.3 "Archivo",sans-serif;margin:16px 0 8px}
+p.lead{color:var(--muted);margin:0 0 12px;font-size:14px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:15px;margin:10px 0;box-shadow:var(--shadow)}
+.callout{border-left:4px solid var(--accent);background:var(--surface);border-radius:0 12px 12px 0;padding:12px 14px;margin:12px 0;box-shadow:var(--shadow);font-size:14px}
+.pill{font:500 11.5px "IBM Plex Mono",monospace;background:var(--surface2);border:1px solid var(--line);color:var(--muted);border-radius:999px;padding:2px 9px;white-space:nowrap}
+.pill.core{background:var(--accent-soft);border-color:transparent;color:var(--accent)}
+.pill.irata{background:var(--warn-soft);border-color:transparent;color:var(--warn)}
+.deckhead{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin-top:22px}
+.deckhead h2{margin:0}
+details.term{background:var(--surface);border:1px solid var(--line);border-radius:12px;margin:8px 0;overflow:hidden}
+details.term summary{list-style:none;cursor:pointer;padding:13px 14px;display:flex;align-items:baseline;gap:9px;min-height:24px}
+details.term summary::-webkit-details-marker{display:none}
+details.term summary .tname{font-weight:600;font-size:15.5px}
+details.term summary .code{font:500 12px "IBM Plex Mono",monospace;color:var(--accent);margin-left:auto;text-align:right}
+details.term[open] summary{border-bottom:1px solid var(--line)}
+.tbody{padding:12px 14px;display:grid;gap:9px}
+.plain{background:var(--accent-soft);border-radius:9px;padding:10px 12px;font-size:14.5px}
+.plain b{color:var(--accent)}
+.tech{font-size:14px}
+.src{font:500 11.5px "IBM Plex Mono",monospace;color:var(--muted)}
+nav.bottom{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);display:flex;z-index:50;padding-bottom:env(safe-area-inset-bottom)}
+nav.bottom button{flex:1;border:none;background:none;color:var(--muted);font:500 10px "Archivo",sans-serif;padding:8px 0 7px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px}
+nav.bottom button .ic{font-size:19px;line-height:1}
+nav.bottom button.on{color:var(--accent)}
+nav.bottom button:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+section.view{display:none}section.view.on{display:block}
+/* angle widget */
+.angle-widget{text-align:center}
+.angle-readout{font:700 34px/1 "IBM Plex Mono",monospace;color:var(--accent);margin:6px 0 2px}
+.angle-sub{font-size:13px;color:var(--muted)}
+input[type=range]{width:100%;accent-color:var(--accent);height:34px}
+.angle-flag{font:600 13px "Archivo",sans-serif;border-radius:8px;padding:6px 10px;display:inline-block;margin-top:8px}
+.flag-ok{background:var(--good-soft);color:var(--good)}
+.flag-warn{background:var(--warn-soft);color:var(--warn)}
+.flag-bad{background:var(--bad-soft);color:var(--bad)}
+/* drill */
+.fc-card{background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:24px 18px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;cursor:pointer;min-height:220px}
+.fc-card .side-label{font:500 10.5px "IBM Plex Mono",monospace;letter-spacing:1.4px;text-transform:uppercase;color:var(--muted);margin-bottom:12px}
+.fc-card .fc-term{font:700 23px/1.25 "Archivo",sans-serif}
+.fc-card .fc-def{font-size:15.5px;max-width:46ch}
+.fc-actions{display:flex;gap:8px;margin-top:12px}
+.fc-actions button{flex:1;padding:15px 6px;border-radius:12px;border:1px solid var(--line);font:600 14.5px "Archivo",sans-serif;cursor:pointer}
+.btn-again{background:var(--bad-soft);color:var(--bad);border-color:transparent}
+.btn-good{background:var(--good-soft);color:var(--good);border-color:transparent}
+.btn-easy{background:var(--surface2);color:var(--ink)}
+.btn-flip{background:var(--accent);color:var(--accent-ink);border-color:transparent}
+.fc-meta{display:flex;justify-content:space-between;color:var(--muted);font:500 11.5px "IBM Plex Mono",monospace;margin:9px 2px 0}
+.due-badge{font:600 11px "IBM Plex Mono",monospace;background:var(--accent);color:var(--accent-ink);border-radius:999px;padding:1px 7px;margin-left:6px}
+/* quiz / judgment */
+.q-opt{display:block;width:100%;text-align:left;padding:13px 14px;margin:8px 0;border-radius:11px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:400 14.5px "Archivo",sans-serif;cursor:pointer}
+.q-opt.correct{border-color:var(--good);background:var(--good-soft)}
+.q-opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.q-opt:disabled{cursor:default;opacity:1}
+.explain{border-left:3px solid var(--accent);background:var(--surface2);border-radius:0 9px 9px 0;padding:10px 12px;font-size:13.5px;margin-top:10px}
+.whereis{border-left:3px solid var(--warn);background:var(--surface2);border-radius:0 9px 9px 0;padding:8px 12px;font:500 12.5px "IBM Plex Mono",monospace;margin-top:8px;color:var(--muted)}
+.progressbar{height:5px;background:var(--surface2);border-radius:3px;overflow:hidden;margin:8px 0 12px}
+.progressbar i{display:block;height:100%;background:var(--accent);border-radius:3px;transition:width .25s}
+@media (prefers-reduced-motion: reduce){.progressbar i{transition:none}}
+.bigbtn{width:100%;padding:16px;border-radius:13px;border:none;background:var(--accent);color:var(--accent-ink);font:600 16px "Archivo",sans-serif;cursor:pointer;margin-top:10px}
+.ghostbtn{width:100%;padding:13px;border-radius:13px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:600 14px "Archivo",sans-serif;cursor:pointer;margin-top:8px}
+.score-big{font:800 44px/1 "Archivo",sans-serif;color:var(--accent)}
+.timer{position:sticky;top:0;z-index:20;background:var(--bg);padding:8px 0;font:700 20px "IBM Plex Mono",monospace;text-align:center}
+.timer.low{color:var(--bad)}
+table.cs{width:100%;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums}
+table.cs th{font:600 11px "IBM Plex Mono",monospace;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);text-align:left;padding:6px 7px;border-bottom:2px solid var(--line)}
+table.cs td{padding:6px 7px;border-bottom:1px solid var(--line);vertical-align:top}
+table.cs td:first-child{font-weight:600;white-space:nowrap}
+.mono{font:500 12.5px "IBM Plex Mono",monospace;color:var(--accent)}
+.tablewrap{overflow-x:auto}
+.topic-bars .row{display:flex;align-items:center;gap:8px;margin:6px 0;font-size:13px}
+.topic-bars .row .lbl{width:110px;color:var(--muted)}
+.topic-bars .bar{flex:1;height:8px;background:var(--surface2);border-radius:4px;overflow:hidden}
+.topic-bars .bar i{display:block;height:100%;border-radius:4px}
+@media print{
+  nav.bottom,.no-print{display:none!important}
+  body{background:#fff;color:#111;padding-bottom:0}
+  section.view{display:none}section#v-sheet{display:block!important}
+  .card,table.cs td,table.cs th{border-color:#bbb}
+}
+</style>
+
+<div class="wrap">
+<header class="app">
+  <h1 class="logo">Rope<em>Ready</em></h1>
+  <p class="sub">SPRAT Level 3 prep · built on the actual 2025 SPRAT standards</p>
+</header>
+
+<section class="view on" id="v-rebuild">
+  <div class="callout"><b>The comeback plan.</b> Your written test is <b>open-book</b>: 50 questions, 80% to pass, one hour, and the SPRAT documents are allowed on the table. So this app trains two things — the concepts, and <b>where every rule lives</b>, so you can verify answers in seconds. Rebuild decks first (the rusty L1/L2 layer), then Level 3, then Drill daily. Your Level 2 is current, so the evaluator re-tests about half the lower-level items plus everything new at Level 3.</div>
+  <div class="card"><h3 style="margin-top:0">Exam-day facts (from SPRAT's own scheme)</h3>
+  <ul style="margin:0;padding-left:19px;font-size:14px">
+    <li>Written: <b>50 questions · 80% pass · 1 hour · open-book</b> · within 10 days before the practical · two attempts allowed.</li>
+    <li>Practical grading: <b>one Fail = out. Three Discrepancies = out.</b> The evaluator explains each call before your next exercise.</li>
+    <li>L3 practical adds: system analysis, deviation/re-anchor build + rescue, knot-pass raise/lower, tensioned rope system, rescue from 2 of 5 maneuvers, and a <b>written equipment-inspection report</b> on deliberately damaged kit.</li>
+    <li>Certification runs 3 years; recert inside the final 6 months keeps your original anniversary date.</li>
+  </ul></div>
+  <div id="rebuild-root"></div>
+</section>
+
+<section class="view" id="v-l3">
+  <h2>Level 3 — what's new at your level</h2>
+  <p class="lead">Everything below is the material Level 2 never tested. The angle tool is SPRAW Tables 1 & 2, live.</p>
+
+  <div class="card angle-widget">
+    <h3 style="margin-top:0">Anchor angle forces — SPRAW Tables 1 & 2</h3>
+    <label for="angle-slider" style="font-size:13px;color:var(--muted)">Interior angle θ</label>
+    <input type="range" id="angle-slider" min="0" max="178" value="90" step="1" aria-label="Interior angle">
+    <div class="angle-readout" id="angle-deg">90°</div>
+    <div class="angle-sub">Load-sharing Y-hang: each anchorage sees <b id="t1-val">71%</b> of the load<br>Directional/deviation anchor at this interior angle: <b id="t2-val">141%</b> of the load</div>
+    <div id="angle-flag" class="angle-flag flag-ok">OK — under 90° preferred zone</div>
+    <p style="font-size:12px;color:var(--muted);margin:10px 0 0">Check the memorable rows: 120° → each Y-hang anchor carries 100% · 150° → 193% · 170° → 574%. Deviation side: straight-through 180° bend → 200%, gentle 15° push → 26%. <span class="src">SPRAW §12.1, Tables 1–2</span></p>
+  </div>
+  <div id="l3-root"></div>
+
+  <div class="deckhead"><h2>IRATA bridge</h2><span class="pill irata">different scheme — do not mix numbers</span></div>
+  <p class="lead">Only matters if the IRATA conversion happens. These are the traps where the two bodies genuinely differ.</p>
+  <div id="irata-root"></div>
+</section>
+
+<section class="view" id="v-drill">
+  <h2>Drill <span class="due-badge" id="due-count">0 due</span></h2>
+  <p class="lead">Flashcards on a real memory schedule (FSRS — the open-source algorithm behind modern Anki). Cards you miss come back sooner; cards you know drift out for days. A few minutes daily beats an hour weekly.</p>
+  <div id="drill-root"></div>
+</section>
+
+<section class="view" id="v-exam">
+  <h2>Mock Exam</h2>
+  <p class="lead">The real thing: 50 questions, 60-minute timer, 80% to pass. Every answer shows WHERE the rule lives — that's your open-book superpower on the day.</p>
+  <div id="exam-root"></div>
+</section>
+
+<section class="view" id="v-judge">
+  <h2>Judgment</h2>
+  <p class="lead">The practical is graded call by call: one Fail ends it, three Discrepancies end it. Train the evaluator's eye before they train it on you.</p>
+  <div id="judge-root"></div>
+</section>
+
+<section class="view" id="v-sheet">
+  <h2>Cheat Sheet</h2>
+  <p class="lead no-print">Print me. (Browser → Print.)</p>
+
+  <h3>The numbers that get tested</h3>
+  <div class="tablewrap"><table class="cs">
+    <tr><th>Rule</th><th>Value</th><th>Where</th></tr>
+    <tr><td>Backup free-fall</td><td>shall ≤ 1.2 m (4 ft) · should ≤ 0.6 m (2 ft)</td><td>CRC-01 §4.2.5</td></tr>
+    <tr><td>Main free-fall</td><td>shall ≤ 0.6 m (2 ft) · should ≤ 0.3 m (1 ft)</td><td>CRC-01 §4.2.5</td></tr>
+    <tr><td>Swing fall</td><td>shall ≤ 0.6 m · should ≤ 0.3 m · &gt;20° pendulum + &gt;0.6 m shift ⇒ second system</td><td>CRC-01 §4.2.6</td></tr>
+    <tr><td>Fall zone at an edge</td><td>within 2 m (6.6 ft) of an unprotected edge</td><td>SPRAW §10.2</td></tr>
+    <tr><td>Anchorage system</td><td>SHALL ≥ 12 kN (2700 lbf), or 2× backup max arrest force</td><td>SPRAW §12.1.1</td></tr>
+    <tr><td>Harness attachment points</td><td>should ≥ 16 kN</td><td>SPRAW §13.5</td></tr>
+    <tr><td>Connectors</td><td>should ≥ 18 kN, auto-closing gate + locking</td><td>SPRAW §13.6</td></tr>
+    <tr><td>Rope (no terminations / with)</td><td>should ≥ 22 kN / ≥ 18 kN</td><td>SPRAW §13.7</td></tr>
+    <tr><td>Backup lanyard length</td><td>should be &lt; 0.6 m</td><td>SPRAW §13.8</td></tr>
+    <tr><td>L3 prerequisites</td><td>500 h logged on a valid L2 + 6 months held</td><td>CRC-01 §3.3</td></tr>
+  </table></div>
+
+  <h3>Y-hang forces (Table 1) — each anchor's share</h3>
+  <div class="tablewrap"><table class="cs">
+    <tr><th>θ</th><td>0°</td><td>30°</td><td>60°</td><td>90°</td><td><b>120°</b></td><td>150°</td><td>160°</td><td>170°</td></tr>
+    <tr><th>%</th><td>50</td><td>52</td><td>58</td><td>71</td><td><b>100</b></td><td>193</td><td>288</td><td>574</td></tr>
+  </table></div>
+
+  <h3>Deviation anchor force (Table 2)</h3>
+  <div class="tablewrap"><table class="cs">
+    <tr><th>Interior θ</th><td>0°</td><td>60°</td><td>90°</td><td>120°</td><td>150°</td><td>165°</td><td>180°</td></tr>
+    <tr><th>%</th><td>200</td><td>173</td><td>141</td><td>100</td><td>52</td><td>26</td><td>0</td></tr>
+  </table></div>
+
+  <h3>Knots — the four exam categories</h3>
+  <div class="tablewrap"><table class="cs">
+    <tr><th>Category</th><th>Job</th><th>Accepted knots</th></tr>
+    <tr><td>Termination</td><td>attach rope to anchorage</td><td>Figure-8 on a bight · Bowline</td></tr>
+    <tr><td>Middle</td><td>isolate a bight / bypass damage</td><td>Butterfly · In-line figure-8</td></tr>
+    <tr><td>Stop</td><td>never descend off the end</td><td>Figure-8 · Double overhand</td></tr>
+    <tr><td>Join</td><td>join two ropes</td><td>Figure-8 bend · Double fisherman's</td></tr>
+  </table></div>
+
+  <h3>Grading day</h3>
+  <div class="card" style="font-size:14px"><b>1 Fail = evaluation over. 3 Discrepancies = evaluation over.</b> Fail = critical safety issue (risk of serious injury). Discrepancy = non-critical (risk of minor injury). Written test within 10 days before practical, 2 attempts, 80%. Access work plan = work method + risk assessment + rescue plan. A rescue plan is mandatory, always.</div>
+
+  <h3>Suspension intolerance — the current answer</h3>
+  <div class="card" style="font-size:14px">Fully conscious casualty: <b>may be laid down.</b> Semi-conscious or unconscious: <b>recovery position.</b> Standard airway-breathing-circulation first aid applies. The old "keep them sitting upright for 30 minutes" advice was reviewed and withdrawn (UK HSE research, 2008) — it had no supporting evidence and could be harmful. Every motionless-suspension casualty goes to hospital, with suspension intolerance flagged to medics. Waiting for rescue: keep the legs moving or knees elevated.</div>
+</section>
+</div>
+
+<nav class="bottom" aria-label="Sections">
+  <button data-v="rebuild" class="on"><span class="ic">🧱</span>Rebuild</button>
+  <button data-v="l3"><span class="ic">🎯</span>Level 3</button>
+  <button data-v="drill"><span class="ic">🔁</span>Drill</button>
+  <button data-v="exam"><span class="ic">⏱️</span>Exam</button>
+  <button data-v="judge"><span class="ic">⚖️</span>Judge</button>
+  <button data-v="sheet"><span class="ic">📄</span>Sheet</button>
+</nav>
+
+<script>
+"use strict";
+/* ============ data ============ */
+const DECKS=[
+ {id:"prin",name:"Principles & limits",where:"CRC-01 §4 · SPRAW §10"},
+ {id:"sys",name:"Two-rope & backup systems",where:"SPRAW §12"},
+ {id:"knots",name:"Knots",where:"CRC-01 §6.9 · EC-01"},
+ {id:"equip",name:"Equipment & inspection",where:"SPRAW §13 · SPC-03"},
+ {id:"man",name:"Maneuvers & rescue",where:"CRC-01 §6–8"},
+ {id:"terms",name:"Defined terms",where:"SOC-02"},
+ {id:"l3",name:"Level 3 & supervision",where:"CRC-01 §8 · SPRAW §4, 8–9"},
+ {id:"irata",name:"IRATA bridge",where:"IRATA TACS / ICOP"}
+];
+const TERMS=[
+// prin
+{d:"prin",t:"Two-rope principle",p:"You are always on two independently anchored systems: the MAIN system carries you, the BACKUP system catches you if anything in the main fails. No exceptions in a fall zone.",x:"A backup system shall be used with any main system (dual main systems being the special case). Each system is independently anchored.",s:"SPRAW §12.3.1"},
+{d:"prin",t:"Fall zone",p:"Where falling is possible: suspended or moving above a lower level, or within 2 m (6.6 ft) of an unprotected edge. Inside it: backup connected, helmet chinstrap fastened.",x:"The fall zone extends a minimum of 2 m (6.6 ft) from any unprotected edge.",s:"SPRAW §10.2"},
+{d:"prin",t:"Free-fall limits — backup system",p:"The backup may never let you free-fall more than 1.2 m (that's the hard SHALL), and good practice keeps it under 0.6 m (the SHOULD). Slack is the enemy — tend your backup device high.",x:"Free fall potential within a backup system shall not exceed 1.2 m (4 ft); should not exceed 0.6 m (2 ft).",s:"CRC-01 §4.2.5.1–.2"},
+{d:"prin",t:"Free-fall limits — main system",p:"Tighter than the backup: hard limit 0.6 m, good practice 0.3 m. Your main system should basically never drop you.",x:"Free fall potential within a main system shall not exceed 0.6 m (2 ft); should not exceed 0.3 m (1 ft).",s:"CRC-01 §4.2.5.3–.4"},
+{d:"prin",t:"Swing-fall limits",p:"A pendulum is a fall sideways. Hard limit 0.6 m of swing; good practice 0.3 m. If a directional anchor shifts your fall line more than 0.6 m AND the pendulum angle passes 20°, you must add another protective system.",x:"Potential swing fall shall not exceed 0.6 m (2 ft), should not exceed 0.3 m (1 ft); &gt;20° pendulum with &gt;0.6 m fall-line adjustment requires an additional system.",s:"CRC-01 §4.2.6"},
+{d:"prin",t:"Shall vs should",p:"SPRAT's two magic words. SHALL = mandatory, no discussion. SHOULD = strong recommendation you'd better have a reason to skip. The written test loves swapping one for the other to see if you notice.",x:"Requirement language convention used throughout SPRAT documents; exam questions frequently hinge on which word a clause uses.",s:"SPRAW throughout"},
+{d:"prin",t:"Helmet rule",p:"Helmet in any hazard zone; chinstrap actually fastened whenever you're in a fall zone. An unfastened chinstrap is classic discrepancy bait on evaluation day.",x:"Helmets shall be worn in hazard zones; chinstraps fastened in fall zones.",s:"CRC-01 §4 / SPRAW §13.4"},
+{d:"prin",t:"Presiding regulatory authority",p:"OSHA (or whoever governs your site) always outranks SPRAT. If the law is stricter than the standard, the law wins. Test question phrasing: 'all work team members shall follow requirements of the presiding regulatory authority' — TRUE.",x:"Policies and procedures shall be consistent with requirements of the presiding regulatory authority; stricter regulatory requirements override the SPRAT standard.",s:"SPRAW §3.1.3"},
+{d:"prin",t:"Closed-component exception",p:"The one case a connector between anchorage and harness may skip the auto-locking-gate rule: a closed component with no moving parts that can't be opened without damaging it, rated ≥24 kN or 2× the required anchorage strength.",x:"Connectors with no moving parts, not openable without damage, rated for multiple connections and ≥24 kN (5400 lbf) or twice required anchorage strength, are exempt from gate requirements.",s:"CRC-01 §4.3.5"},
+// sys
+{d:"sys",t:"Anchorage system strength",p:"Every anchorage system holds at least 12 kN (2700 lbf) — or two times the backup system's maximum arrest force, whichever is bigger. Burn 12 kN into memory; it's SPRAT's number (IRATA's is different — see the bridge deck).",x:"Primary anchorage systems shall have a minimum strength of 12 kN (2700 lbf) or 2× the maximum arrest force of the backup system, whichever is greater.",s:"SPRAW §12.1.1"},
+{d:"sys",t:"Y-hang / load-sharing angles",p:"Two anchors sharing one load: keep the interior angle small. At 120° each anchor already carries 100% of the load — sharing has stopped. Past 120° the forces explode (150° → 193%, 170° → 574%).",x:"Force per anchorage in an equally distributed load-sharing anchorage system rises with interior angle per SPRAW Table 1: 0°→50%, 90°→71%, 120°→100%, 150°→193%, 170°→574%.",s:"SPRAW §12.1, Table 1"},
+{d:"sys",t:"Directional anchor force",p:"A deviation anchor feels force from the rope bending around it. Straight-through 180° bend = 200% of the load; a gentle push of 15° = only 26%. Opposite behavior from Y-hangs — small deflections are cheap.",x:"Load on a directional anchorage system by interior angle per SPRAW Table 2: 0°(180° bend)→200%, 90°→141%, 120°→100%, 150°→52%, 165°→26%.",s:"SPRAW §12.1.6, Table 2"},
+{d:"sys",t:"Backup system construction",p:"Built to minimize free-fall and clearance, limit impact force, and work without your hands. Backup lanyard should be under 0.6 m.",x:"Backup systems shall minimize free fall distance and clearance requirements and limit impact forces; backup lanyards should be less than 0.6 m long.",s:"SPRAW §12.3 / §13.8"},
+{d:"sys",t:"Dual main systems",p:"The aid-climbing exception to 'main + backup': two main systems, anchors no more than 1 m apart horizontally, interior angle under 90°.",x:"Dual main systems permitted (e.g., aid climbing) with anchorages separated ≤1 m horizontally and interior angle &lt;90°.",s:"SPRAW §12.4.1"},
+{d:"sys",t:"Rope & edge protection",p:"Any rope over an edge gets protection, and each rope deserves its own. A backup lanyard running bare over an edge is a published discrepancy example.",x:"Rope and edge protection shall be used when appropriate; consideration to protecting each rope individually.",s:"SPRAW §12.2.3"},
+// knots
+{d:"knots",t:"The four knot categories",p:"SPRAT tests knots by JOB, two accepted options each: Termination (fig-8 on a bight, bowline) · Middle (butterfly, in-line fig-8) · Stop (fig-8, double overhand) · Join (fig-8 bend, double fisherman's). Know which job is being asked before picking a knot.",x:"Evaluation categories: termination knot, middle knot (bight isolation), stop knot, join knot, with the listed accepted knots per category.",s:"CRC-01 §6.9 / EC-01"},
+{d:"knots",t:"Middle knot — why it exists",p:"To isolate rope damage: tie the damaged section into the isolated bight and the rope is usable again — that bight must NEVER be loaded as part of main or backup. Loading the isolated bight is a published FAIL example.",x:"Middle knots isolate a bight so the rope can be loaded in-line past damage; the isolated bight simulating damaged rope must not be used in main or backup systems.",s:"EC-01 grading examples"},
+{d:"knots",t:"Knots weaken rope",p:"Every knot costs strength — roughly a quarter to a third for the working set (IRATA's dressed-knot data: fig-8 on a bight 23–34% loss, butterfly 28–39%, bowline 26–45%, overhand 32–42%). Dressing the knot well matters; sloppy costs more.",x:"IRATA ICOP knot strength-loss ranges (well- to poorly-dressed): figure-8 on a bight 23–34%; alpine butterfly 28–39%; bowline 26–45%; overhand on a bight 32–42%; figure-9 16–32%.",s:"ICOP §2.11.5.5 (IRATA data)"},
+{d:"knots",t:"Knot tails",p:"Tails at least 100 mm (4 in) once the knot is set. Short tails creep.",x:"All knot tails should be a minimum of 100 mm long after setting.",s:"ICOP §2.11.5.4 (IRATA)"},
+// equip
+{d:"equip",t:"The MBS chain",p:"Minimum breaking strengths, weakest-link thinking: anchorage system 12 kN → harness attachment points 16 kN → connectors 18 kN → rope 22 kN bare / 18 kN with terminations. Exam trap inside: the 12 kN anchorage rule is a SHALL; the 16/18/22 kN equipment figures are SHOULDs. If a question hinges on the verb, that's why.",x:"Anchorage systems shall have ≥12 kN (2700 lbf) or 2× backup max arrest force. Harness attachment points should have ≥16 kN; connectors should have ≥18 kN; rope/textiles should have ≥22 kN without terminations, ≥18 kN with terminations.",s:"SPRAW §12.1.1 (shall), §13.5–13.7 (should)"},
+{d:"equip",t:"Descender requirements",p:"Working-line descender (EN 12841 Type C): locks by itself when you let go, handles a two-person rescue load, dissipates heat, can't pop off the rope under load. Panic function catches a yanked handle.",x:"Descenders must auto-lock hands-free, support two-person rescue loads, dissipate heat, and resist inadvertent detachment; EN 12841 Type C is the working-line descender class.",s:"SPC-03 §5.3 / ICOP §2.7.5"},
+{d:"equip",t:"Backup device physics",p:"The whole backup chain (device + lanyard + connector + harness) must keep the force on your body under 6 kN if the main fails — 6 kN is the recognized injury threshold. And it must hold a static 2.5 kN without slipping, so a rescuer can load your system.",x:"Backup device combination shall limit force on the user to max 6 kN on working-line failure and should not slip below 2.5 kN static load (two-person rescue support).",s:"ICOP §2.7.7.3–.4 (IRATA numbers; SPRAT states the function requirements)"},
+{d:"equip",t:"Ascender rules",p:"EN 12841 Type B. SPRAT wants at least 2 deliberate actions to get it off the rope — no single-motion accidents. Toothed cams chew ropes when shock-loaded: never let an ascender take a fall.",x:"Ascenders require ≥2 deliberate actions for removal from rope; not rated for fall arrest.",s:"SPRAW §13.11 / SPC-03 §5.4"},
+{d:"equip",t:"Connector classes & the gate problem",p:"EN 362 classes: B basic, M multi-use, T termination, A anchor, Q screwlink. The gate is the weak point — cross-loading or webbing pressing the gate can cut strength nearly in half (up to 45% loss in tests). Keep loads on the spine.",x:"EN 362 connector classes B/M/T/A/Q; asymmetric/gate-side loading produced static strength reductions up to 45% in testing; 'roll-out' is a named gate failure mode.",s:"SPC-03 §4.3.5 / ICOP §2.7.4"},
+{d:"equip",t:"Harness standards",p:"Three European standards, three jobs: EN 813 sit harness (ventral, rope access positioning), EN 361 full body (sternal/dorsal, fall arrest), EN 358 work positioning belt. A combined harness has all the points — each used only for its own job. SPRAT wants attachment points ≥16 kN.",x:"EN 813 (sit/ventral), EN 361 (full-body/fall arrest), EN 358 (positioning); SPRAT requires full-body harness with sternal + ventral points; attachment points should have ≥16 kN.",s:"SPRAW §13.5 / SPC-03"},
+{d:"equip",t:"Textile inspection vocabulary",p:"What you're feeling and looking for on soft gear: abrasion, cuts, fraying, burns, GLAZING (shiny melted spots from friction heat), brittleness, mildew, stitching damage, fading, lost rigidity. Glazing is the sneaky one — it means the fibers already melted once.",x:"SPC-03 textile damage categories: abrasion, brittleness, burns, cuts, elongation, fading, fraying, glazing (superficial melting), mildew, rigidity change, stitching damage.",s:"SPC-03 §3"},
+{d:"equip",t:"Hardware inspection vocabulary",p:"On metal: burring, cracks, corrosion, deformation, sharp edges/erosion, gouges, stress marks. Gate action must snap shut and lock by itself, every time.",x:"SPC-03 hardware damage categories: burring, cracks, corrosion, deformation, erosion/sharp edges, gouges, stress marks; gates must auto-close and lock.",s:"SPC-03 §3"},
+{d:"equip",t:"Rope retirement calls",p:"Cut through the sheath with core visible: retire. Substantial abrasion: retire. Hard spots, swelling, soft crushed sections, stiff glazed lengths: retire. Permanent rust staining: retire. When in doubt, out.",x:"Any cut or substantial abrasion = scrap; internal damage checked by feel; permanent rust marks = scrap (per IRATA inspection guidance); manufacturer criteria govern.",s:"ICOP §2.10.2 / manufacturer docs"},
+{d:"equip",t:"Inspection rhythm",p:"Pre-use check every day before you trust your life to it. Documented inspection by a competent person at least ANNUALLY under SPRAT (IRATA/UK convention is 6-monthly — bridge deck). Extra interim inspections after hard use or weird events.",x:"SPRAT: documented inspections at minimum annually from purchase to retirement. Pre-use checks before each use. (IRATA detailed inspection ≤6 months.)",s:"SPRAW §13.3.4"},
+// man
+{d:"man",t:"Deviation vs re-anchor",p:"Deviation: the rope BENDS through a connector on a side anchor — small push on the fall line (~20° in the L1 test), rope keeps running. Re-anchor: the rope is TIED OFF to a new fixed anchorage partway down — the fall line fully resets there. Different builds, different rescues.",x:"Deviation = two-rope system with fall line adjusted by a directional anchorage system. Re-anchor = two-rope system with intermediate fixed anchorage systems.",s:"SOC-02 §2.18 / §2.45"},
+{d:"man",t:"Knot pass",p:"Getting past knots tied at the same height in both ropes without ever losing main or backup. At L3 you also raise and lower ANOTHER person past knots.",x:"L1: ascend/descend past knots in both ropes. L3: raising and lowering an individual or load past knots (ground, platform, or suspended).",s:"CRC-01 §6.5 / §8.5"},
+{d:"man",t:"Rope-to-rope transfer",p:"Moving sideways onto a completely separate two-rope system at least 2 m away — four connections in play, never fewer than two holding you.",x:"Transfer between two-rope systems ≥2 m apart maintaining main and backup protection throughout.",s:"CRC-01 §6.6"},
+{d:"man",t:"Aid climbing",p:"Progression by moving between anchorages (or on movable anchors) — horizontal at L1 (≥3 m), vertical at L2. The dual-main-system rules apply: anchors ≤1 m apart, angle &lt;90°.",x:"Aid climbing = movement/positioning by transitioning between anchorage systems; horizontal ≥3 m at L1, vertical/steep ≥3 m at L2.",s:"CRC-01 §6.8 / §7.2 · SOC-02 §2.3"},
+{d:"man",t:"Rescue ladder by level",p:"L1: reach a casualty on the ADJACENT rope set, switch them to descent, join, descend together. L2: remote rescue system (lower anyone from a distance), same-set transfer rescue, fall-arrest-lanyard rescue. L3: rescue THROUGH maneuvers — deviation, knot pass, transfer, re-anchor, or aid climb (you'll demo two of the five).",x:"Rescue requirements: L1 §6.12 adjacent-set ascent-to-descent; L2 §7.10–7.12 remote system, same-set transfer, fall-arrest rescue; L3 §8.7 rescue from two of five maneuvers.",s:"CRC-01"},
+{d:"man",t:"Remote rescue system",p:"The L2 build every L3 must still own: a rig that can lower a casualty from anywhere on their two-rope system without a rescuer ever reaching them. On eval day it may NOT be used to satisfy the L3 rescue-from-maneuvers item.",x:"Construct a system permitting lowering of a subject located anywhere along a two-rope system without another person accessing that location; remote systems may not satisfy the L3 Rescue: From Maneuvers requirement.",s:"CRC-01 §7.9 / EC-01"},
+{d:"man",t:"Retrievable system",p:"Rig it, descend, pull it down after you — no walk back to the anchor. L2 skill, still fair game at your eval.",x:"Construct a retrievable two-rope system, descend ≥2 m, retrieve without returning to the anchorage.",s:"CRC-01 §7.6"},
+{d:"man",t:"Suspension intolerance",p:"Motionless hanging pools blood in the legs — pre-syncope can start within 10 minutes for 1 in 5 people. Waiting casualty: legs moving, knees up. Rescued casualty: conscious → may lie down; semi/unconscious → recovery position. The old keep-them-upright rule is DEAD — reviewed in 2008, no evidence, possibly harmful. Everyone suspended motionless goes to hospital.",x:"Current guidance (ICOP Annex G, per HSE RR708 2008 review): conscious casualties may be laid down; semi-conscious/unconscious in recovery position; standard ABC first aid; hospital referral for all motionless-suspension casualties.",s:"ICOP Annex G"},
+// terms
+{d:"terms",t:"Anchorage vs anchorage system",p:"Anchorage = the OBJECT taking the force (the beam). Anchorage system = anchorages plus their connectors, assembled. Exam answers turn on this distinction.",x:"Anchorage: object that supports forces applied to a fall protection system. Anchorage system: anchorages and associated anchorage connectors.",s:"SOC-02 §2.4 / §2.6"},
+{d:"terms",t:"Main vs backup (SPRAT words)",p:"SPRAT says MAIN system / BACKUP system (IRATA says working line / safety line — same idea, different words). Main rope, backup rope; descent mode, ascent mode.",x:"Main system supports the individual (descender/ascender); backup system = fall arrest system configured with rope maintaining limited free fall.",s:"SOC-02 §2.9–2.12, 2.40+"},
+{d:"terms",t:"Limited free fall potential",p:"A defined term with a number in it: possible free fall restricted to LESS than 0.6 m (2 ft). The backup system's whole job description.",x:"Limited free fall potential: the restriction of possible free fall to less than 60 cm (2 ft).",s:"SOC-02 §2.39"},
+{d:"terms",t:"Fall clearance vocabulary",p:"The distances that add up under you: free-fall distance (before the system engages) + activation distance + deceleration distance = arrest distance. Clearance planning is L2/L3 System Analysis.",x:"Free fall distance, activation distance, deceleration distance, arrest distance — the components of clearance calculation.",s:"SOC-02 §2.1, 2.7, 2.15, 2.31"},
+{d:"terms",t:"Fail vs Discrepancy (defined)",p:"Fail = critical safety issue: breaks SPRAT standards or manufacturer instructions, or risks SERIOUS injury. Discrepancy = non-critical: risks minor injury. One Fail or three Discrepancies ends the evaluation.",x:"Fail: critical safety issue demonstrating non-compliance or risk of serious injury/damage. Discrepancy: non-critical safety issue, risk of minor injury/damage.",s:"SOC-02 §2.20 / §2.22 · CRC-01 §5"},
+{d:"terms",t:"Independent evaluator",p:"The person grading you didn't train you and doesn't work for your employer or trainer. Holds current Level 3 themselves.",x:"An evaluator that has not trained the candidate and is not employed by the candidate's employer or training provider.",s:"SOC-02 §2.34"},
+{d:"terms",t:"Hazard zone vs fall zone",p:"Hazard zone: any area of risk from the work (dropped tools, swinging loads). Fall zone: specifically where YOU can fall. Fall zone starts 2 m from an unprotected edge.",x:"Hazard zone: any area where an individual may be at risk due to the work. Fall zone: area at risk of falling, ≥2 m from unprotected edges.",s:"SOC-02 §2.27/§2.33 · SPRAW §10"},
+// l3
+{d:"l3",t:"Your prerequisites (done)",p:"Level 3 entry: 500 hours logged while holding a VALID Level 2, plus six months minimum holding it. Hours logged with an expired cert don't count — yours were logged current, so you're clean.",x:"Candidates shall document ≥500 hours of rope access experience obtained with a valid certification at their current level, held ≥6 months.",s:"CRC-01 §3.3.3–.4"},
+{d:"l3",t:"System Analysis",p:"The L3-only thinking test: estimate the forces (angle tables) and the clearances (free-fall + activation + deceleration + margin) in the systems actually rigged around you. The angle slider on this tab IS this skill.",x:"Estimate potential forces and clearance requirements within rope access systems in use.",s:"CRC-01 §8.3"},
+{d:"l3",t:"L3 practical: build + prove",p:"You construct a deviation or re-anchor to adjust the fall line, then either work through it or rescue someone from it. Eval caps: deviation ~20°, re-anchor ≤6 m offset, re-anchor sag at least half the span (≥1 m).",x:"Construct deviation or re-anchor; negotiate it or rescue from it. EC-01: fall-line adjustment ≤20° (deviation) / ≤6 m (re-anchor); sag ≥half the horizontal span, min 1 m.",s:"CRC-01 §8.4 / EC-01"},
+{d:"l3",t:"Tensioned rope system",p:"L3 builds a tensioned line to move a person or load sideways. Respect it: over-tensioning multiplies anchor loads catastrophically — the physics is the 170°-Y-hang problem wearing a different hat.",x:"Construct and use a tensioned rope system for lateral movement. (IRATA: incorrect tensioning 'can result in loads that are potentially catastrophic.')",s:"CRC-01 §8.6 / ICOP §2.11.2.21"},
+{d:"l3",t:"The inspection report station",p:"The evaluator hands you deliberately damaged gear. You write a real inspection report finding the faults. Drill the damage vocabulary (glazing, gate wear, core shots) in the Judge tab — this station is why.",x:"L3 evaluation includes a written equipment inspection report identifying faults in damaged/worn equipment presented by the evaluator.",s:"EC-01 L3 requirements"},
+{d:"l3",t:"Supervision — who may supervise",p:"The Rope Access Supervisor SHOULD be a Level 3. A Level 2 may supervise only in a narrow carve-out: straight up/down work, no transfers, no knot passes, no re-anchors, rescue possible straight down the fall line, no confined space / hot work / live electrical.",x:"SPRAW §8.2.2–8.2.3: supervisor should be L3; L2 supervision limited to simple ascent/descent work with direct-fall-line rescue and none of the listed complications.",s:"SPRAW §8.2"},
+{d:"l3",t:"Access work plan",p:"Three mandatory parts, in every plan, every job: work method + risk assessment + rescue plan. 'All of the above' is the exam answer. Reviewed by everyone affected by the work.",x:"The access work plan shall at minimum consist of the work method, risk assessment, and rescue plan.",s:"SPRAW §9.7"},
+{d:"l3",t:"Supervisor duties",p:"The written exam tests the job you're stepping into: implement the program on site, verify everyone's cert + hours, complete the access work plan, mark the work zones, verify anchorages and equipment, guarantee prompt rescue capability, run the debrief, report accidents.",x:"Rope Access Supervisor responsibilities per SPRAW §4: worksite implementation, verification of training/certification/experience, access work plan completion, work zone identification, equipment/anchorage verification, rescue capability, debriefs and accident reporting.",s:"SPRAW §4 / §17"},
+{d:"l3",t:"Team rules",p:"Enough technicians to guarantee PROMPT rescue — that's the sizing rule. At least one designated supervisor per work site.",x:"Work teams shall have at least the number of technicians needed to ensure prompt rescue; a designated Rope Access Supervisor per site.",s:"SPRAW §8"},
+{d:"l3",t:"OSHA position (US)",p:"OSHA's rope descent system rules explicitly EXCLUDE industrial rope access ('Rope descent systems do not include industrial rope access systems' — 1910.21(b)). General fall-protection duty still applies (1910.140), and the presiding authority always wins.",x:"29 CFR 1910.21(b) definitional exclusion; 1910.27 RDS rules do not govern IRAS; 1910.140 general personal fall protection baseline applies.",s:"29 CFR 1910 / SPRAW §3"},
+{d:"l3",t:"ANSI context",p:"Z359 = the general fall-protection code family. Z459.1 = the new US rope-access-specific standard — know it exists, and know SPRAT has publicly opposed parts of it. Not OSHA-adopted.",x:"ANSI/ASSP Z359 series (fall protection code); ANSI/ASSP Z459.1 rope access standard published; SPRAT issued a formal opposition statement.",s:"SPC-03 / sprat.org news"},
+{d:"l3",t:"Recert clock",p:"3 years from evaluation date. Recert inside the final 6 months → new cert runs from the OLD expiry (no time lost). Outside that window → clock restarts from the new evaluation date.",x:"Certification valid 3 years; recertification within 6 months before expiration is valid 3 years from that expiration date.",s:"CRC-01 §2.3"},
+// irata bridge
+{d:"irata",t:"Anchor strength: 12 vs 15",p:"SPRAT: anchorage system ≥12 kN. IRATA: anchor ≥15 kN (derived from 6 kN max impact × 2.5 safety factor). Different bodies, different numbers — never quote one to the other's examiner.",x:"SPRAW §12.1.1: 12 kN. ICOP §2.11.2.6–.8: 15 kN from 6 kN×2.5.",s:"both primary docs"},
+{d:"irata",t:"Hours: 500 vs 1,000",p:"SPRAT upgrade: 500 h + 6 months at current level. IRATA upgrade: 1,000 h + 12 months. IRATA also has a 180-day inactivity rule triggering mandatory refresher training.",x:"CRC-01 §3.3 vs TACS §3–4; TACS §4.11 refresher after ≥180 days without rope access work.",s:"both primary docs"},
+{d:"irata",t:"Inspections: annual vs 6-month",p:"SPRAT documented inspection: at least annual. IRATA detailed inspection: at least every 6 months (UK LOLER heritage).",x:"SPRAW §13.3.4 vs ICOP §2.10.1.4.2.",s:"both primary docs"},
+{d:"irata",t:"Vocabulary swaps",p:"SPRAT main/backup system = IRATA working/safety line. SPRAT 'transition' = IRATA 'changeover'. SPRAT remote rescue system = IRATA rig-for-rescue. Same gear, different dialect.",x:"Terminology mapping per SOC-02 vs ICOP definitions.",s:"both primary docs"},
+{d:"irata",t:"Written exams differ wildly",p:"SPRAT: 50 questions, 80%, open-book, at every level. IRATA: written exam at Level 3 ONLY — 10 questions, 30 min, 70% (50–69% = minor discrepancy, under 50% = automatic major).",x:"EC-01 §3 vs TACS §6.5.5 L3 theory examination rules.",s:"both primary docs"},
+{d:"irata",t:"SPRAT→IRATA conversion",p:"No automatic reciprocity. A SPRAT L3 with 1,000+ h over 1+ year can typically enter IRATA at L3 via a Trainer Member Company conversion — but still sits the full IRATA 4-day course + assessment, and the exact terms vary BY TMC. Confirm with the specific school first.",x:"TACS §4.5 allows conversion with requirements set by individual TMCs; published TMC practice: SPRAT L3 + 1,000 h/1 yr → IRATA L3 candidacy (course + assessment still required).",s:"TACS §4.5 / TMC guidance — verify per school"}
+];
+/* exam bank: {d:topic,q,o[],a,w,src} */
+const QUIZ=[
+{d:"prin",q:"SPRAT's Safe Practices for Rope Access Work provides:",o:["Requirements for how to perform each maneuver","Requirements and recommendations for a comprehensive rope access program","Certification testing procedures","Equipment manufacturing standards"],a:1,w:"SPRAW is the program-level document — requirements and recommendations for running rope access work safely. Maneuver testing lives in CRC-01; equipment specifics in SPC-03.",src:"SPRAW §1"},
+{d:"prin",q:"All work team members shall follow requirements of the presiding regulatory authority on the worksite.",o:["TRUE","FALSE"],a:0,w:"Straight from SPRAT's own practice test. The law of the site always applies, and where stricter, it overrides the SPRAT standard.",src:"SPRAW §3.1.3"},
+{d:"prin",q:"Free fall potential within a backup system SHALL not exceed:",o:["0.3 m (1 ft)","0.6 m (2 ft)","1.2 m (4 ft)","2 m (6.6 ft)"],a:2,w:"The SHALL is 1.2 m; the SHOULD is 0.6 m. Backup free-fall ≥1.2 m potential is a published FAIL example on the practical.",src:"CRC-01 §4.2.5.1"},
+{d:"prin",q:"Free fall potential within a MAIN system shall not exceed:",o:["0.3 m (1 ft)","0.6 m (2 ft)","1.2 m (4 ft)","No limit if a backup exists"],a:1,w:"Main system: shall ≤0.6 m, should ≤0.3 m. Tighter than the backup's limits.",src:"CRC-01 §4.2.5.3"},
+{d:"prin",q:"Potential swing fall distance shall not exceed:",o:["0.3 m","0.6 m","1.2 m","20°"],a:1,w:"Swing: shall ≤0.6 m, should ≤0.3 m. The 20° figure is about when a fall-line shift demands an additional system, not the swing distance itself.",src:"CRC-01 §4.2.6"},
+{d:"prin",q:"The fall zone extends at minimum how far from an unprotected edge?",o:["1 m (3.3 ft)","2 m (6.6 ft)","3 m (10 ft)","6 m (20 ft)"],a:1,w:"2 m / 6.6 ft. Inside it: backup system connected, chinstrap fastened.",src:"SPRAW §10.2"},
+{d:"prin",q:"A directional anchorage system shifts the fall line 0.8 m, creating a 25° pendulum. What is required?",o:["Nothing — under the shall limit","A second protective system","A wider Y-hang","Retire the rope"],a:1,w:"Over 20° pendulum AND over 0.6 m shift = an additional system is required. Both thresholds crossed here.",src:"CRC-01 §4.2.6"},
+{d:"prin",q:"Rope access equipment:",o:["Must be compatible","Should be used per manufacturer's instructions","Should be used in ways prohibited by the manufacturer","A and B"],a:3,w:"SPRAT's own practice-test format: compatibility is a must, manufacturer instructions govern use. Violating manufacturer instructions is Fail territory on the practical.",src:"SPRAW §13 / EC-35"},
+{d:"sys",q:"Minimum strength of a primary anchorage system:",o:["6 kN","12 kN (2700 lbf) or 2× backup max arrest force","15 kN always","22 kN"],a:1,w:"12 kN or twice the backup's maximum arrest force, whichever is greater. (15 kN is IRATA's number — don't mix schemes.)",src:"SPRAW §12.1.1"},
+{d:"sys",q:"In an equally loaded Y-hang at a 120° interior angle, each anchorage carries:",o:["50% of the load","71% of the load","100% of the load","200% of the load"],a:2,w:"120° is the break-even: each anchor sees the FULL load — sharing has stopped. Past it, forces multiply (150°→193%).",src:"SPRAW Table 1"},
+{d:"sys",q:"At a 150° Y-hang interior angle, each anchorage sees approximately:",o:["75%","100%","193%","574%"],a:2,w:"193% — nearly double the load on EACH anchor. 574% is the 170° value. This is why wide angles are rigging malpractice.",src:"SPRAW Table 1"},
+{d:"sys",q:"A deviation anchor with a 90° interior angle experiences approximately what force?",o:["50% of the load","71%","141%","200%"],a:2,w:"Table 2: 90° interior → 141%. The tighter the bend, the bigger the force — a straight-through 180° bend doubles the load (200%).",src:"SPRAW Table 2"},
+{d:"sys",q:"Dual main systems (aid climbing) require anchorages:",o:["≤1 m apart horizontally with interior angle <90°","≥2 m apart","Rated 24 kN each","Backed up by a third rope"],a:0,w:"The dual-main exception: anchors within 1 m horizontally, interior angle under 90°.",src:"SPRAW §12.4.1"},
+{d:"sys",q:"Two-rope systems shall be installed so that failure of one component results in:",o:["Immediate descent to the ground","Minimum swing fall","Load transfer to the technician's lanyard","An audible alarm"],a:1,w:"Rig geometry must keep the surviving system nearly plumb to you — minimum swing fall on any single failure.",src:"SPRAW §12.2.1"},
+{d:"knots",q:"Which pair are SPRAT-accepted TERMINATION knots?",o:["Butterfly and in-line figure-8","Figure-8 on a bight and bowline","Double overhand and figure-8","Figure-8 bend and double fisherman's"],a:1,w:"Termination = attaching rope to anchorage: figure-8 on a bight or bowline. The other pairs are the middle, stop, and join categories respectively.",src:"CRC-01 §6.9"},
+{d:"knots",q:"The purpose of a MIDDLE knot is to:",o:["Join two ropes","Stop descent off the rope end","Isolate a bight, e.g., to bypass rope damage","Terminate at the anchor"],a:2,w:"Butterfly or in-line figure-8 isolates damage into an unloaded bight. Loading that isolated bight in main or backup is a published FAIL.",src:"CRC-01 §6.9 / EC-01"},
+{d:"knots",q:"Per IRATA's published data, a well-dressed figure-8 on a bight reduces rope strength by roughly:",o:["5%","23–34%","50–60%","It adds strength"],a:1,w:"About a quarter to a third — 23% dressed well, up to 34% dressed poorly. Dressing matters.",src:"ICOP §2.11.5.5"},
+{d:"knots",q:"Knot tails after setting should be at least:",o:["25 mm","50 mm","100 mm","300 mm"],a:2,w:"100 mm (about 4 inches) minimum — knots creep under cyclic load.",src:"ICOP §2.11.5.4"},
+{d:"equip",q:"Connectors in main/backup systems should have a minimum breaking strength of:",o:["12 kN","16 kN","18 kN","24 kN"],a:2,w:"Connectors should be ≥18 kN with auto-closing, locking gates. (16 kN is harness points; 12 kN — a SHALL — is anchorage systems; 24 kN the closed-component exception.)",src:"SPRAW §13.6"},
+{d:"equip",q:"Rope WITHOUT terminations should have a minimum breaking strength of:",o:["12 kN","18 kN","22 kN","30 kN"],a:2,w:"22 kN bare rope, 18 kN with terminations (the knot's strength cost is priced in).",src:"SPRAW §13.7"},
+{d:"equip",q:"Harness attachment points should have a minimum breaking strength of at least:",o:["6 kN","12 kN","16 kN","22 kN"],a:2,w:"16 kN for attachment points. Full-body harness, sternal + ventral minimum, each point used for its designed purpose.",src:"SPRAW §13.5"},
+{d:"equip",q:"An EN 12841 Type C device is:",o:["A backup device","A working-line descender","An ascender","An energy absorber"],a:1,w:"Type C = descender (working line). Type A = backup/safety-line device, Type B = ascender.",src:"SPC-03 §5.3"},
+{d:"equip",q:"The backup device chain must limit force on the user, if the working line fails, to a maximum of:",o:["4 kN","6 kN","8 kN","12 kN"],a:1,w:"6 kN — the recognized injury threshold. It should also hold 2.5 kN static without slipping so a rescuer can work on your system.",src:"ICOP §2.7.7.3"},
+{d:"equip",q:"Removing an ascender from the rope should require:",o:["One quick motion","At least 2 deliberate actions","A tool","Unclipping the backup first"],a:1,w:"Two deliberate actions minimum — no single-motion accidental removals.",src:"SPRAW §13.11"},
+{d:"equip",q:"'Glazing' on rope or webbing indicates:",o:["UV fading","Superficial melting from friction heat","Chemical contamination","Normal wear"],a:1,w:"Shiny, hard, glassy patches = the fibers already melted once. Textile damage vocabulary is exam AND inspection-report material.",src:"SPC-03 §3"},
+{d:"equip",q:"Cross-loading or webbing pressure against a carabiner gate can reduce its strength by up to:",o:["10%","25%","45%","75%"],a:2,w:"Up to 45% in published testing — the gate is the weak point. Keep loads on the spine, watch for roll-out.",src:"ICOP §2.7.4.3"},
+{d:"equip",q:"SPRAT requires documented equipment inspections at minimum:",o:["Weekly","Monthly","Every 6 months","Annually"],a:3,w:"SPRAT's floor is annual documented inspection (plus pre-use checks daily and interim inspections after events). IRATA's detailed-inspection convention is 6-monthly — a bridge-deck trap.",src:"SPRAW §13.3.4"},
+{d:"man",q:"A deviation differs from a re-anchor in that a deviation:",o:["Ties the rope to a new fixed anchorage","Redirects the rope through a directional anchor without tying off","Requires three anchors","Is only used in rescue"],a:1,w:"Deviation = rope bends through a connector, fall line nudged. Re-anchor = rope tied off to an intermediate fixed anchorage, fall line reset.",src:"SOC-02 §2.18/§2.45"},
+{d:"man",q:"The Level 1 rescue requirement is to rescue a subject:",o:["Through a knot pass","On an ADJACENT rope system, transitioning them ascent-to-descent","Using a remote rescue system","From a tensioned line"],a:1,w:"L1: adjacent-set rescue with ascent→descent transition, join, descend together. Remote systems are L2; rescue-through-maneuvers is L3.",src:"CRC-01 §6.12"},
+{d:"man",q:"At Level 3 you must demonstrate rescue from how many of the five listed maneuvers?",o:["One","Two","Three","All five"],a:1,w:"Two of five: deviation, knot pass, rope-to-rope transfer, re-anchor, aid climbing — with the casualty positioned realistically, and remote systems not allowed for this item.",src:"CRC-01 §8.7 / EC-01"},
+{d:"man",q:"A conscious casualty just rescued from motionless suspension should be:",o:["Kept sitting upright for 30 minutes","Laid down if fully conscious; recovery position if semi-conscious or unconscious","Suspended until medics arrive","Given water and released"],a:1,w:"The modern answer. The old sit-upright rule was reviewed (HSE 2008) and withdrawn — no evidence, potentially harmful. All motionless-suspension casualties go to hospital.",src:"ICOP Annex G"},
+{d:"man",q:"Signs of suspension intolerance can begin in a motionless suspended person within:",o:["10 minutes for some people","Only after 2 hours","Only if injured","Never in a padded harness"],a:0,w:"About 20% of test subjects reached pre-syncope within 10 minutes. That's why prompt rescue capability sizes the team.",src:"ICOP Annex G.2.4"},
+{d:"man",q:"While awaiting rescue, a suspended person's tolerance improves by:",o:["Hanging perfectly still","Moving the legs / elevating the knees","Loosening leg loops","Removing the helmet"],a:1,w:"Muscle-pumping the legs or elevating knees fights venous pooling. Still + upright + motionless is the dangerous combination.",src:"ICOP Annex G.2"},
+{d:"l3",q:"Eligibility for Level 3 requires documented rope access hours of at least:",o:["300 h at Level 2","500 h obtained with a VALID Level 2 certification","1,000 h at Level 2","1,500 h combined"],a:1,w:"500 hours logged while the Level 2 cert was valid, plus 6 months minimum holding it. (1,000 h/12 months is IRATA's rule.)",src:"CRC-01 §3.3"},
+{d:"l3",q:"The SPRAT written test is:",o:["Closed-book, 25 questions","Open-book, 50 questions, 80% pass, 1 hour","Oral only","10 questions, 70% pass"],a:1,w:"Open-book, 50 Qs, 80%, one hour, within 10 days before the practical, two attempts. (10 questions/70% is IRATA Level 3's exam.)",src:"EC-01 §3"},
+{d:"l3",q:"An evaluation ends in overall failure upon:",o:["One Discrepancy","Two Discrepancies","One Fail OR three Discrepancies","Only unsafe acts"],a:2,w:"1 F = out; 3 D = out. Multiple discrepancies can even come from a single exercise. The evaluator explains each before your next exercise.",src:"CRC-01 §5"},
+{d:"l3",q:"The access work plan shall, at minimum, consist of:",o:["Work method","Risk assessment","Rescue plan","All of the above"],a:3,w:"All three, always — straight off SPRAT's own practice test. No rope access work without a rescue plan.",src:"SPRAW §9.7"},
+{d:"l3",q:"A Level 2 Technician is eligible to be Rope Access Supervisor for work requiring re-anchors.",o:["TRUE","FALSE"],a:1,w:"FALSE — the L2-supervision carve-out excludes transfers, knot passes and re-anchors, and demands rescue straight down the fall line, no confined space/hot work/live electrical.",src:"SPRAW §8.2.3"},
+{d:"l3",q:"Work team size is determined by:",o:["A fixed minimum of four","The number needed to ensure PROMPT rescue","Client preference","One per 50 m of rope"],a:1,w:"Prompt-rescue capability sizes the team. At least one designated supervisor per site.",src:"SPRAW §8"},
+{d:"l3",q:"Which is a responsibility of the Rope Access SUPERVISOR (not a general team member)?",o:["Following the access work plan","Completing the access work plan and verifying team certifications","Reporting hazards they notice","Maintaining their own logbook"],a:1,w:"The supervisor completes the plan, verifies everyone's cert/hours, marks zones, verifies rigging, guarantees rescue capability. Team members follow and report.",src:"SPRAW §4"},
+{d:"l3",q:"Under OSHA's general industry rules, industrial rope access systems are:",o:["Regulated as rope descent systems under 1910.27","Explicitly excluded from the rope descent system definition","Banned above 300 ft","Exempt from all fall protection law"],a:1,w:"1910.21(b): 'Rope descent systems do not include industrial rope access systems.' General fall-protection duties (1910.140) still apply, and the presiding authority always wins.",src:"29 CFR 1910.21(b)"},
+{d:"l3",q:"Recertifying within the final 6 months before expiry means the new certification:",o:["Runs 3 years from the NEW evaluation date","Runs 3 years from the OLD expiration date","Runs 2 years","Requires re-doing Level 1"],a:1,w:"Inside the window you lose nothing — the clock extends from the old expiry. Outside it, the 3 years restart from the new evaluation.",src:"CRC-01 §2.3.2"},
+{d:"l3",q:"During the L3 evaluation, a constructed re-anchor's fall-line adjustment is limited to:",o:["1.5 m","6 m (20 ft)","10 m","No limit"],a:1,w:"EC-01's eval caps: deviations ~20°, re-anchors up to 6 m offset, sag at least half the span (min 1 m).",src:"EC-01 L3"},
+{d:"l3",q:"The Level 3 written equipment-inspection exercise requires you to:",o:["Verbally list five defects","Write an inspection report identifying faults in deliberately damaged equipment","Repair the damaged gear","Photograph the equipment"],a:1,w:"A written report on sabotaged kit — the damage-vocabulary station. Drill 'Inspect' in the Judge tab for exactly this.",src:"EC-01 L3"},
+{d:"l3",q:"Who may evaluate your Level 3 certification?",o:["Your course instructor","Any Level 3 in the company","An independent evaluator who didn't train you and isn't employed by your employer/trainer","A SPRAT board member only"],a:2,w:"Independence is the point: not your trainer, not your employer's or training provider's staff, and holding current Level 3 themselves.",src:"SOC-02 §2.34"},
+{d:"terms",q:"'Limited free fall potential' is defined as restricting possible free fall to less than:",o:["0.3 m","0.6 m (2 ft)","1.2 m","2 m"],a:1,w:"A defined term with a number inside: under 60 cm. It's the backup system's job description.",src:"SOC-02 §2.39"},
+{d:"terms",q:"An 'anchorage' is:",o:["The connectors used at the anchor","An object that supports forces applied to a fall protection system","Any bolt","The knot at the rope end"],a:1,w:"Anchorage = the object. Anchorage SYSTEM = anchorages + connectors assembled. Definitions questions turn on exactly this.",src:"SOC-02 §2.4"},
+{d:"terms",q:"A 'Fail' grade is defined as a safety issue that:",o:["Any error the evaluator notices","A non-critical issue risking minor injury","A critical issue — non-compliance or risk of SERIOUS injury or damage","Only dropping equipment"],a:2,w:"Fail = critical/serious. Discrepancy = non-critical/minor. Dropped equipment is listed as a discrepancy example, not a fail.",src:"SOC-02 §2.22"},
+{d:"terms",q:"The access work plan should be reviewed by:",o:["Only the supervisor","Only the client","Any person affected by the rope access work","SPRAT headquarters"],a:2,w:"TRUE/FALSE classic from SPRAT's own sample: anyone affected reviews the plan.",src:"EC-35 / SPRAW §9"},
+{d:"terms",q:"'Arrest distance' is:",o:["The free-fall distance only","The vertical distance traveled while interacting with a fall protection system during a fall","The rope stretch at rest","The height of the anchor"],a:1,w:"Arrest distance = the whole vertical ride during arrest: free fall + activation + deceleration feed the clearance calculation.",src:"SOC-02 §2.7"},
+{d:"irata",q:"IRATA's minimum anchor strength differs from SPRAT's. The IRATA figure is:",o:["10 kN","12 kN","15 kN","20 kN"],a:2,w:"IRATA: 15 kN (6 kN injury threshold × 2.5 safety factor). SPRAT: 12 kN. Never mix them across schemes.",src:"ICOP §2.11.2"},
+{d:"irata",q:"To upgrade a level, IRATA requires logged experience of:",o:["500 h + 6 months","1,000 h + 12 months","300 h + 3 months","Hours are not required"],a:1,w:"IRATA: 1,000 hours AND 12 months at the current level (to the day). SPRAT: 500 h + 6 months. A favorite conflation trap.",src:"TACS §3–4"}
+];
+/* judgment: discrepancy-or-fail */
+const CALLS=[
+{s:"Candidate descends with no brake hand on the descender tail.",a:1,w:"Published DISCREPANCY example. Control lost = risk of minor injury; the auto-lock is still there. Do it while something else is wrong and the picture changes."},
+{s:"Backup device is threaded onto the rope upside-down.",a:2,w:"FAIL — a published example. An inverted backup or descender may not lock in a fall: critical, serious-injury risk."},
+{s:"While suspended mid-wall, the candidate is momentarily connected by only ONE system.",a:2,w:"FAIL — single point of attachment while suspended is the canonical critical error. The two-rope principle is the whole religion."},
+{s:"Helmet chinstrap unfastened while working in the fall zone.",a:1,w:"DISCREPANCY — published example. Helmet leaves your head in a tumble: minor-injury class on its own."},
+{s:"Backup system rigged with 1.3 m of free-fall potential.",a:2,w:"FAIL — published example at ≥1.2 m. The shall-limit is the line between discrepancy and fail; at 0.7 m it's a discrepancy (over the SHOULD)."},
+{s:"Backup system rigged with 0.8 m of free-fall potential.",a:1,w:"DISCREPANCY — over the 0.6 m SHOULD but under the 1.2 m SHALL. Same error, different magnitude, different grade. Know both numbers."},
+{s:"During a knot pass, the isolated bight (simulating damaged rope) gets loaded as part of the main system.",a:2,w:"FAIL — published example. That bight represents cut rope. Loading it means loading the damage."},
+{s:"A carabiner in the anchor rig is left with its gate unlocked.",a:1,w:"DISCREPANCY — published example (unfastened connectors). It becomes fail territory when combined with load against the gate."},
+{s:"During a rope-to-rope transfer, the candidate briefly has no backup protecting toward the side being negotiated.",a:2,w:"FAIL — published example: main without backup toward a side during transfer/re-anchor negotiation."},
+{s:"A wrench slips out of the candidate's bag and falls to the ground inside the exclusion zone.",a:1,w:"DISCREPANCY — dropped equipment is a published example. (Dropping it onto a person would be a different conversation.)"},
+{s:"The anchorage system the candidate built won't meet minimum strength.",a:2,w:"FAIL — published example under System Construction: insufficient anchorage strength is critical by definition."},
+{s:"A rescue subject ends up suspended from a single system during the rescue.",a:2,w:"FAIL — published example. The casualty gets two systems too; rescue never suspends anyone from one."},
+{s:"Rope ends up tangled around the candidate's leg during descent.",a:1,w:"DISCREPANCY — published example (rope tangles). Annoying, not yet critical."},
+{s:"Descending without adding extra friction while carrying out a two-person pick-off rescue.",a:1,w:"DISCREPANCY — published example: no extra friction in rescue descent. Double load wants more brake."},
+{s:"A small uncontrolled swing during repositioning.",a:1,w:"DISCREPANCY — published example. A big pendulum near structure would escalate."},
+{s:"Candidate scores 45% on the written test (SPRAT context: fails it twice inside the window).",a:2,w:"Fail the written twice (or blow the 10-day window) and the whole evaluation must be retaken — written AND practical."}
+];
+/* judgment: inspect */
+const INSPECT=[
+{s:"11 mm rope: 30 cm section feels stiff and looks shiny-hard on the sheath.",a:2,w:"RETIRE. Glazing = the sheath melted from friction heat. Strength is compromised; no rehab for melted fiber."},
+{s:"Rope sheath cut; white core fibers visible at one spot.",a:2,w:"RETIRE. Core visible through a cut = automatic scrap in every scheme and every manufacturer's manual."},
+{s:"Rope stored touching a rusty shackle: permanent brown staining that won't wash out.",a:2,w:"RETIRE per IRATA inspection guidance: wash rust contact; permanent rust marks = scrap."},
+{s:"Carabiner: gate closes but no longer locks by itself.",a:2,w:"RETIRE. SPRAT requires auto-closing AND locking gates for main/backup connectors. Half-working gates are how roll-out happens."},
+{s:"Carabiner: fine white powdery corrosion in the gate hinge, action still crisp after cleaning.",a:1,w:"MONITOR. Clean, lubricate per manufacturer, re-check gate action. Corrosion that pits the metal or stiffens the gate = retire."},
+{s:"Harness: stitching on a leg-loop keeper (non-structural comfort strap) is fraying.",a:1,w:"MONITOR. Non-structural component wear gets logged and watched. Structural stitching damage — attachment points, load paths — is retire, no debate."},
+{s:"Harness ventral attachment point: webbing fuzzy across the full width with red wear-indicator threads showing.",a:2,w:"RETIRE. Wear indicators exist to make this call for you. Structural webbing at an attachment point, indicator visible = done."},
+{s:"Descender side plate has a deep gouge; cam action feels normal.",a:1,w:"MONITOR/manufacturer check. Deep gouges on load-bearing alloy can hide cracks — out of service until verified. Sharp burrs that touch rope = retire."},
+{s:"Backup device: full of grit, locks when tested but sluggish.",a:1,w:"MONITOR: clean per manufacturer, re-test. If locking is not instant and certain after cleaning — retire. The backup only gets one job."},
+{s:"Sling: single pulled thread on the sheath, no cut fibers, otherwise clean, in service 2 years of a 10-year life.",a:0,w:"PASS and log it. Cosmetic snag without fiber damage is serviceable — note it so the next inspector sees the history."},
+{s:"Rope: soft, mushy 10 cm section — sheath intact but the core feels crushed.",a:2,w:"RETIRE. Core damage under an intact sheath is exactly what the tactile check exists to find. Soft spot = broken core strands."},
+{s:"Helmet: deep scratches on the shell, no cracks, suspension intact, 3 years old of a 10-year manufacturer life.",a:0,w:"PASS and log. Cosmetic scratches are life; cracks, dents, UV chalking, or a hit-taken history are not."}
+];
+/* ---------- storage ---------- */
+const store={get(k,f){try{const v=localStorage.getItem("rr1_"+k);return v?JSON.parse(v):f}catch(e){return f}},set(k,v){try{localStorage.setItem("rr1_"+k,JSON.stringify(v))}catch(e){}}};
+/* ---------- tabs ---------- */
+const tabs=document.querySelectorAll("nav.bottom button");
+tabs.forEach(b=>b.addEventListener("click",()=>{tabs.forEach(x=>x.classList.toggle("on",x===b));document.querySelectorAll("section.view").forEach(s=>s.classList.remove("on"));document.getElementById("v-"+b.dataset.v).classList.add("on");window.scrollTo({top:0})}));
+/* ---------- learn rendering ---------- */
+function renderTerms(rootId,deckIds){
+ const root=document.getElementById(rootId);
+ deckIds.forEach(id=>{
+  const dk=DECKS.find(x=>x.id===id);const terms=TERMS.filter(t=>t.d===id);
+  const head=document.createElement("div");head.className="deckhead";
+  head.innerHTML='<h2>'+dk.name+'</h2><span class="pill '+(id==="irata"?"irata":"core")+'">'+dk.where+'</span>';
+  root.appendChild(head);
+  terms.forEach(t=>{
+   const d=document.createElement("details");d.className="term";
+   d.innerHTML='<summary><span class="tname">'+t.t+'</span></summary>'+
+    '<div class="tbody"><div class="plain"><b>Plain English:</b> '+t.p+'</div><div class="tech"><b>Standard wording:</b> '+t.x+'</div><div class="src">📍 '+t.s+'</div></div>';
+   root.appendChild(d);
+  });
+ });
+}
+renderTerms("rebuild-root",["prin","sys","knots","equip","man","terms"]);
+renderTerms("l3-root",["l3"]);
+renderTerms("irata-root",["irata"]);
+/* ---------- angle widget ---------- */
+(function(){
+ const sl=document.getElementById("angle-slider"),deg=document.getElementById("angle-deg"),t1=document.getElementById("t1-val"),t2=document.getElementById("t2-val"),flag=document.getElementById("angle-flag");
+ function upd(){
+  const a=+sl.value, rad=a*Math.PI/180;
+  const f1=100/(2*Math.cos(rad/2));           // Table 1: % of load per anchor
+  const f2=200*Math.cos(rad/2);               // Table 2: % of load on deviation anchor
+  deg.textContent=a+"°"; t1.textContent=Math.round(f1)+"%"; t2.textContent=Math.round(f2)+"%";
+  if(a<=90){flag.className="angle-flag flag-ok";flag.textContent="OK — inside the ≤90° preferred zone"}
+  else if(a<=120){flag.className="angle-flag flag-warn";flag.textContent="Caution — approaching 120°, where each anchor carries the full load"}
+  else{flag.className="angle-flag flag-bad";flag.textContent="Bad rigging — past 120°, forces multiply fast"}
+ }
+ sl.addEventListener("input",upd);upd();
+})();
+/* ---------- FSRS drill ----------
+   Compact implementation of the open-source FSRS-4.5 scheduling algorithm
+   (Open Spaced Repetition project, github.com/open-spaced-repetition — the
+   algorithm behind modern Anki). Ratings: 1=Again, 3=Good, 4=Easy.        */
+(function(){
+ const W=[0.4872,1.4003,3.7145,13.8206,5.1618,1.2298,0.8975,0.031,1.6474,0.1367,1.0461,2.1072,0.0793,0.3246,1.587,0.2272,2.8755];
+ const DECAY=-0.5,FACTOR=19/81,R_TARGET=0.9;
+ const DAY=86400000;
+ function retr(t,s){return Math.pow(1+FACTOR*t/s,DECAY)}
+ function interval(s){return Math.max(1,Math.min(365,Math.round(s/FACTOR*(Math.pow(R_TARGET,1/DECAY)-1))))}
+ function initCard(r){const d=Math.min(10,Math.max(1,W[4]-Math.exp(W[5]*(r-1))+1));return{s:W[r-1],d:d,reps:1}}
+ function next(card,r,elapsedDays){
+  let{s,d}=card;const R=retr(Math.max(0,elapsedDays),s);
+  let nd=d-W[6]*(r-3);nd=W[7]*(W[4]-Math.exp(W[5]*2)+1)+(1-W[7])*nd;nd=Math.min(10,Math.max(1,nd));
+  let ns;
+  if(r===1){ns=Math.min(s,W[11]*Math.pow(nd,-W[12])*(Math.pow(s+1,W[13])-1)*Math.exp(W[14]*(1-R)))}
+  else{let bonus=r===4?W[16]:1;ns=s*(1+Math.exp(W[8])*(11-nd)*Math.pow(s,-W[9])*(Math.exp(W[10]*(1-R))-1)*bonus)}
+  return{s:Math.max(0.1,ns),d:nd,reps:(card.reps||0)+1};
+ }
+ const state=store.get("fsrs",{});
+ const allCards=TERMS.map((t,i)=>({id:"t"+i,t:t.t,front:t.t,back:t.p,deck:t.d}));
+ let session=[],idx=0,flipped=false;
+ const root=document.getElementById("drill-root");
+ function dueList(){
+  const now=Date.now();
+  return allCards.filter(c=>{const st=state[c.id];return !st||st.due<=now});
+ }
+ function updateBadge(){document.getElementById("due-count").textContent=dueList().length+" due"}
+ function start(){
+  session=dueList().slice(0,30);idx=0;flipped=false;draw();
+ }
+ function draw(){
+  updateBadge();
+  if(!session.length||idx>=session.length){
+   const due=dueList().length;
+   root.innerHTML='<div class="card" style="text-align:center"><div class="score-big">'+(due===0?"✔":due)+'</div><p>'+(due===0?"<b>Nothing due.</b> The schedule is working — come back tomorrow.":"<b>"+due+" cards waiting.</b> Sessions serve up to 30 at a time.")+'</p>'+(due>0?'<button class="bigbtn" id="dr-start">Start session</button>':'<button class="ghostbtn" id="dr-start">Study ahead anyway</button>')+'</div>';
+   document.getElementById("dr-start").addEventListener("click",()=>{
+    if(dueList().length===0){ // study ahead: pull soonest-due
+     const now=Date.now();
+     session=allCards.slice().sort((a,b)=>((state[a.id]||{due:0}).due)-((state[b.id]||{due:0}).due)).slice(0,15);idx=0;flipped=false;draw();
+    } else start();
+   });
+   return;
+  }
+  const c=session[idx];const term=TERMS.find(t=>t.t===c.t);
+  root.innerHTML='<div class="fc-card" id="fc" role="button" tabindex="0">'+
+   (!flipped?'<div class="side-label">'+DECKS.find(d=>d.id===c.deck).name+' — tap to flip</div><div class="fc-term">'+c.front+'</div>':
+   '<div class="side-label">meaning</div><div class="fc-def">'+c.back+'</div><div class="src" style="margin-top:10px">📍 '+term.s+'</div>')+
+   '</div><div class="fc-actions">'+(!flipped?'<button class="btn-flip" id="fc-flip">Flip</button>':
+   '<button class="btn-again" id="r1">Again</button><button class="btn-good" id="r3">Good</button><button class="btn-easy" id="r4">Easy</button>')+
+   '</div><div class="fc-meta"><span>'+(idx+1)+' / '+session.length+'</span><span>'+dueList().length+' due total</span></div>';
+  const fc=document.getElementById("fc");
+  const flip=()=>{flipped=!flipped;draw()};
+  fc.addEventListener("click",flip);
+  fc.addEventListener("keydown",e=>{if(e.key===" "||e.key==="Enter"){e.preventDefault();flip()}});
+  if(!flipped){document.getElementById("fc-flip").addEventListener("click",e=>{e.stopPropagation();flip()})}
+  else{[1,3,4].forEach(r=>{document.getElementById("r"+r).addEventListener("click",()=>rate(c,r))})}
+ }
+ function rate(c,r){
+  const now=Date.now();const st=state[c.id];
+  let card;
+  if(!st){card=initCard(r)}
+  else{card=next(st,r,(now-(st.last||now))/DAY)}
+  card.last=now;
+  card.due=r===1?now+600000:now+interval(card.s)*DAY;
+  state[c.id]=card;store.set("fsrs",state);
+  if(r===1){session.push(c)} // again → back into this session
+  idx++;flipped=false;draw();
+ }
+ draw();
+})();
+/* ---------- exam ---------- */
+(function(){
+ const root=document.getElementById("exam-root");
+ let qs=[],i=0,score=0,mode="full",timerId=null,endAt=0,topicStats={};
+ function shuffle(a){for(let x=a.length-1;x>0;x--){const j=Math.floor(Math.random()*(x+1));[a[x],a[j]]=[a[j],a[x]]}return a}
+ function menu(){
+  clearInterval(timerId);
+  const bf=store.get("best_full",null),bq=store.get("best_quick",null);
+  root.innerHTML='<div class="card"><h3 style="margin-top:0">Full mock — the real shape</h3><p class="lead">50 questions · 60-minute clock · pass at 80% (40/50).</p>'+(bf!==null?'<p style="font-size:13px;color:var(--muted)">Best: <b>'+bf+' / 50</b></p>':'')+'<button class="bigbtn" id="q-full">Start timed mock</button></div>'+
+  '<div class="card"><h3 style="margin-top:0">Quick 10</h3><p class="lead">Untimed, random ten, for the spare minutes.</p>'+(bq!==null?'<p style="font-size:13px;color:var(--muted)">Best: <b>'+bq+' / 10</b></p>':'')+'<button class="ghostbtn" id="q-quick">Start quick 10</button></div>';
+  document.getElementById("q-full").addEventListener("click",()=>{mode="full";qs=shuffle(QUIZ.slice()).slice(0,50);begin(true)});
+  document.getElementById("q-quick").addEventListener("click",()=>{mode="quick";qs=shuffle(QUIZ.slice()).slice(0,10);begin(false)});
+ }
+ function begin(timed){
+  i=0;score=0;topicStats={};
+  if(timed){endAt=Date.now()+3600000;timerId=setInterval(tick,1000)}else{endAt=0}
+  draw();
+ }
+ function tick(){
+  const el=document.getElementById("clock");if(!el){clearInterval(timerId);return}
+  const left=Math.max(0,endAt-Date.now());
+  const m=Math.floor(left/60000),s=Math.floor(left%60000/1000);
+  el.textContent=String(m).padStart(2,"0")+":"+String(s).padStart(2,"0");
+  el.parentElement.classList.toggle("low",left<300000);
+  if(left<=0){clearInterval(timerId);finish(true)}
+ }
+ function draw(){
+  if(i>=qs.length){finish(false);return}
+  const q=qs[i];
+  root.innerHTML=(endAt?'<div class="timer"><span id="clock">60:00</span></div>':'')+
+  '<div class="progressbar"><i style="width:'+Math.round(100*i/qs.length)+'%"></i></div>'+
+  '<p style="font:500 12px \'IBM Plex Mono\',monospace;color:var(--muted)">Q'+(i+1)+' / '+qs.length+' · score '+score+'</p>'+
+  '<div class="card"><p style="margin-top:0;font-weight:600;font-size:15px">'+q.q+'</p><div id="opts"></div><div id="ex"></div><div id="nx"></div></div>';
+  const opts=document.getElementById("opts");
+  q.o.forEach((o,oi)=>{
+   const b=document.createElement("button");b.className="q-opt";b.textContent=o;
+   b.addEventListener("click",()=>{
+    document.querySelectorAll(".q-opt").forEach((x,xi)=>{x.disabled=true;if(xi===q.a)x.classList.add("correct")});
+    topicStats[q.d]=topicStats[q.d]||{r:0,n:0};topicStats[q.d].n++;
+    if(oi===q.a){score++;topicStats[q.d].r++}else{b.classList.add("wrong")}
+    document.getElementById("ex").innerHTML='<div class="explain"><b>'+(oi===q.a?"Right.":"Not quite.")+'</b> '+q.w+'</div><div class="whereis">OPEN-BOOK MOVE → '+q.src+'</div>';
+    const nb=document.createElement("button");nb.className="bigbtn";nb.textContent=i+1<qs.length?"Next":"Finish";
+    nb.addEventListener("click",()=>{i++;draw()});
+    document.getElementById("nx").appendChild(nb);
+   });
+   opts.appendChild(b);
+  });
+ }
+ function finish(timedOut){
+  clearInterval(timerId);
+  const total=qs.length,answered=Object.values(topicStats).reduce((a,t)=>a+t.n,0);
+  const pct=Math.round(100*score/total);
+  const prev=store.get("best_"+mode,0);if(score>prev)store.set("best_"+mode,score);
+  const pass=mode==="full"?score>=40:pct>=80;
+  const names={prin:"Principles",sys:"Systems",knots:"Knots",equip:"Equipment",man:"Maneuvers",terms:"Definitions",l3:"Level 3",irata:"IRATA"};
+  let bars='<div class="topic-bars">';
+  Object.keys(topicStats).forEach(k=>{const t=topicStats[k];const p=Math.round(100*t.r/t.n);
+   bars+='<div class="row"><span class="lbl">'+names[k]+'</span><span class="bar"><i style="width:'+p+'%;background:'+(p>=80?"var(--good)":p>=60?"var(--warn)":"var(--bad)")+'"></i></span><span style="width:56px;text-align:right;font:500 12px \'IBM Plex Mono\',monospace">'+t.r+'/'+t.n+'</span></div>'});
+  bars+='</div>';
+  root.innerHTML='<div class="card" style="text-align:center"><div class="score-big">'+score+' / '+total+'</div><p style="font-weight:700;color:'+(pass?"var(--good)":"var(--bad)")+'">'+(timedOut?"TIME — ":"")+(pass?"PASS at the 80% bar":"below the 80% bar")+'</p></div>'+
+  '<div class="card"><h3 style="margin-top:0">Where you\'re strong / weak</h3>'+bars+'<p class="lead" style="margin-top:10px">Weak topics: hit those Rebuild decks, then drill. On the real day, remember — the book is on the table. Practice FINDING answers, not just knowing them.</p></div>'+
+  '<button class="bigbtn" id="q-again">Run another</button>';
+  document.getElementById("q-again").addEventListener("click",menu);
+ }
+ menu();
+})();
+/* ---------- judgment ---------- */
+(function(){
+ const root=document.getElementById("judge-root");
+ function game(list,title,blurb,opts,storeKey){
+  const wrap=document.createElement("div");
+  let i=0,right=0,order=list.slice();
+  for(let x=order.length-1;x>0;x--){const j=Math.floor(Math.random()*(x+1));[order[x],order[j]]=[order[j],order[x]]}
+  function draw(){
+   if(i>=order.length){
+    const prev=store.get(storeKey,0);if(right>prev)store.set(storeKey,right);
+    wrap.innerHTML='<div class="card" style="text-align:center"><h3 style="margin-top:0">'+title+'</h3><div class="score-big">'+right+' / '+order.length+'</div><p class="lead">'+(right===order.length?"Evaluator-proof.":"Re-read the misses — each one is a real grading example.")+'</p><button class="ghostbtn">Run again</button></div>';
+    wrap.querySelector("button").addEventListener("click",()=>{i=0;right=0;for(let x=order.length-1;x>0;x--){const j=Math.floor(Math.random()*(x+1));[order[x],order[j]]=[order[j],order[x]]}draw()});
+    return;
+   }
+   const c=order[i];
+   wrap.innerHTML='<div class="card"><h3 style="margin-top:0">'+title+' <span class="pill">'+(i+1)+'/'+order.length+'</span></h3><p class="lead">'+blurb+'</p><p style="font-weight:600;font-size:15px">'+c.s+'</p><div class="jopts"></div><div class="jex"></div><div class="jnx"></div></div>';
+   const jo=wrap.querySelector(".jopts");
+   opts.forEach((o,oi)=>{
+    const b=document.createElement("button");b.className="q-opt";b.textContent=o;
+    b.addEventListener("click",()=>{
+     wrap.querySelectorAll(".q-opt").forEach((x,xi)=>{x.disabled=true;if(xi===c.a)x.classList.add("correct")});
+     if(oi===c.a){right++}else{b.classList.add("wrong")}
+     wrap.querySelector(".jex").innerHTML='<div class="explain">'+c.w+'</div>';
+     const nb=document.createElement("button");nb.className="bigbtn";nb.textContent="Next";
+     nb.addEventListener("click",()=>{i++;draw()});
+     wrap.querySelector(".jnx").appendChild(nb);
+    });
+    jo.appendChild(b);
+   });
+  }
+  draw();
+  return wrap;
+ }
+ root.appendChild(game(CALLS,"Discrepancy or Fail?","The evaluator just saw this. Make the call they'd make.",["Pass — no issue","Discrepancy","FAIL"],"best_calls"));
+ root.appendChild(game(INSPECT,"Inspect","The L3 eval hands you damaged kit and a blank report. Call each item.",["Pass — log and keep in service","Monitor / out of service pending check","RETIRE"],"best_inspect"));
+})();
+</script>
+
+</html>
